@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getCountries } from "./api/api";
-import CountryList from "./CountryList";
-import FavoriteList from "./FavoriteList";
+import { CountryType } from "./types/CountiesType";
+import CountryList from "./component/CountryList";
 
 function App() {
-  const [countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState<CountryType[]>([]);
 
   const onFavoriteCountry = (date) => {
     // name 같으면 isDone을 바꾸고 아니면 리턴
-    const favorite = countries.map((country) => {
+    const favorite: CountryType[] = countries.map((country) => {
       if (country.name.common === date) {
         return { ...country, isDone: !country.isDone };
       }
@@ -25,27 +25,37 @@ function App() {
     //  countries에 값을 넣어주는 비동기 함수 만들어서
     //  실행까지,
     const countries = async () => {
-      const date = await getCountries();
+      const date: CountryType[] = await getCountries();
       setCountries(date);
     };
     countries();
   }, []);
 
+  console.log(countries);
+
   return (
     <>
       <h1 className=" text-center text-2xl font-semibold">favoriteCountries</h1>
       <div className="grid grid-cols-4 gap-6 justify-items-center">
-        <FavoriteList
-          countries={countries}
-          onFavoriteCountry={onFavoriteCountry}
-        />
+        {countries.map((date) => {
+          if (!date.isDone) {
+            return;
+          }
+          return (
+            <CountryList onFavoriteCountry={onFavoriteCountry} date={date} />
+          );
+        })}
       </div>
       <h1 className=" text-center text-2xl font-semibold">Countries</h1>
       <div className="grid grid-cols-4 gap-6 justify-items-center">
-        <CountryList
-          countries={countries}
-          onFavoriteCountry={onFavoriteCountry}
-        />
+        {countries.map((date) => {
+          if (date.isDone) {
+            return;
+          }
+          return (
+            <CountryList onFavoriteCountry={onFavoriteCountry} date={date} />
+          );
+        })}
       </div>
     </>
   );
